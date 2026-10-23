@@ -1,0 +1,294 @@
+.silos-page {
+    width: 100%;
+    min-height: calc(100vh - 72px);
+    padding: 34px clamp(20px, 4.5vw, 64px) 48px;
+    background: #0b1522;
+    color: #f1f5f9;
+    box-sizing: border-box;
+    font-family: Inter, system-ui, sans-serif;
+}
+.silos-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+.silos-eyebrow {
+    display: block;
+    margin-bottom: 9px;
+    color: #f59e0b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+}
+.silos-heading h1 {
+    margin: 0 0 8px;
+    font-size: clamp(28px, 3vw, 36px);
+    font-weight: 750;
+    letter-spacing: -0.8px;
+}
+.silos-heading p,
+.silos-panel-heading p {
+    margin: 0;
+    color: #91a0b4;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.silos-primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 17px;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    background: #f59e0b;
+    color: #101827;
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.silos-primary-button:hover {
+    background: #fbbf24;
+}
+.silos-primary-button span {
+    font-size: 19px;
+    line-height: 12px;
+}
+.silos-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.silos-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+    padding: 21px 19px;
+    border: 1px solid #253548;
+    border-radius: 12px;
+    background: #111e2d;
+}
+.silos-summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #332a19;
+    color: #fbbf24;
+    font-size: 21px;
+}
+.silos-summary-icon.green {
+    background: #15342d;
+    color: #4ade80;
+}
+.silos-summary-icon.amber {
+    background: #3b3018;
+    color: #facc15;
+}
+.silos-summary-icon.red {
+    background: #3a2028;
+    color: #fb7185;
+}
+.silos-summary-card div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.silos-summary-card div > span {
+    color: #a7b4c5;
+    font-size: 12px;
+}
+.silos-summary-card strong {
+    margin: 5px 0 3px;
+    font-size: 27px;
+    line-height: 1.1;
+    font-weight: 750;
+}
+.silos-summary-card small {
+    color: #75869c;
+    font-size: 10px;
+}
+.silos-table-panel {
+    overflow: hidden;
+    border: 1px solid #253548;
+    border-radius: 12px;
+    background: #111e2d;
+}
+.silos-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #253548;
+}
+.silos-panel-heading h2 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    font-weight: 700;
+}
+.silos-count {
+    padding: 6px 10px;
+    border: 1px solid #314258;
+    border-radius: 20px;
+    color: #b9c5d4;
+    font-size: 11px;
+    white-space: nowrap;
+}
+.silos-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+.silos-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+    text-align: left;
+}
+.silos-table th {
+    padding: 14px 18px;
+    background: #0e1a29;
+    color: #788ba2;
+    font-size: 9px;
+    letter-spacing: 0.8px;
+    font-weight: 800;
+}
+.silos-table td {
+    padding: 16px 18px;
+    border-top: 1px solid #233247;
+    color: #d5deea;
+    font-size: 12px;
+}
+.silos-table tbody tr:hover {
+    background: #152335;
+}
+.silos-name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+.silos-row-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #344357;
+    border-radius: 8px;
+    background: #172638;
+    color: #fbbf24;
+    font-size: 17px;
+}
+.silos-name div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.silos-name strong {
+    color: #f1f5f9;
+    font-size: 12px;
+}
+.silos-name small,
+.silos-occupancy small {
+    color: #8293a8;
+    font-size: 10px;
+}
+.silos-occupancy {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 105px;
+}
+.silos-occupancy-track {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #26374b;
+}
+.silos-occupancy-track span {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: #f59e0b;
+}
+.silos-status {
+    display: inline-flex;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.silos-status.conferido {
+    background: #15372e;
+    color: #4ade80;
+}
+.silos-status.pendente {
+    background: #3b3018;
+    color: #facc15;
+}
+.silos-status.atencao {
+    background: #3a2028;
+    color: #fb7185;
+}
+.silos-last-check {
+    color: #91a0b4 !important;
+}
+.silos-more {
+    width: 30px;
+    height: 30px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #91a0b4;
+    font-size: 20px;
+    cursor: pointer;
+}
+.silos-more:hover {
+    border-color: #34465b;
+    background: #1a2a3d;
+    color: #fff;
+}
+.silos-table-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 22px;
+    border-top: 1px solid #253548;
+    color: #74869b;
+    font-size: 10px;
+}
+.@media(max-width:1050px) {
+    .silos-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .silos-page {
+        padding: 28px 24px;
+    }
+}
+@media (max-width: 560px) {
+    .silos-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .silos-summary {
+        grid-template-columns: 1fr;
+    }
+    .silos-panel-heading {
+        padding: 18px;
+    }
+    .silos-table-footer {
+        flex-direction: column;
+    }
+    .silos-page {
+        padding: 24px 15px;
+    }
+}
