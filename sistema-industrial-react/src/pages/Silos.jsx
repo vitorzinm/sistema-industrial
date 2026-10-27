@@ -55,10 +55,6 @@ function Silos() {
                 <div>
                     <span className="silos-eyebrow">OPERAÇÃO / INVENTÁRIO</span>
                     <h1>Silos</h1>
-                    <p>
-                        Acompanhe os silos cadastrados e o estado de cada
-                        conferência.
-                    </p>
                 </div>
                 <button
                     className="silos-primary-button"

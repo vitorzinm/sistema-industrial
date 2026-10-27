@@ -71,12 +71,7 @@ function VisaoGeral({ onNavigate }) {
                 <div>
                     <span className="eyebrow">PAINEL DE CONTROLE</span>
                     <h1>Visão geral</h1>
-                    <p>
-                        Acompanhe a operação e a situação dos silos em um só
-                        lugar.
-                    </p>
                 </div>
-
                 <button
                     className="overview-primary-button"
                     type="button"

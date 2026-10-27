@@ -55,23 +55,23 @@ function Header({ activePage = "Visão geral", onNavigate }) {
                     <span>Sistema operacional</span>
                 </div>
 
-                <button
+                {/* <button
                     className="notification-button"
                     type="button"
                     aria-label="Notificações"
                     title="Notificações"
                 >
                     ♧<span className="notification-count">3</span>
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                     className="user-profile"
                     type="button"
                     aria-label="Perfil do usuário"
                     title="Perfil do usuário"
                 >
                     VH
-                </button>
+                </button> */}
             </div>
         </header>
     );

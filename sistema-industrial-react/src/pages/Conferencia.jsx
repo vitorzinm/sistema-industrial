@@ -137,7 +137,6 @@ function Conferencia() {
                         OPERAÇÃO INDUSTRIAL
                     </span>
                     <h1>Conferência de silos</h1>
-                    <p>Defina o destino e acompanhe a operação do carrinho.</p>
                 </div>
 
                 <div

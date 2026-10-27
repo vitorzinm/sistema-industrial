@@ -92,17 +92,13 @@ function Historico() {
                         OPERAÇÃO / AUDITORIA
                     </span>
                     <h1>Histórico</h1>
-                    <p>
-                        Consulte as atividades e os registros recentes do
-                        sistema.
-                    </p>
                 </div>
-                <div className="historico-total">
+                {/* <div className="historico-total">
                     <span>REGISTROS EXIBIDOS</span>
                     <strong>
                         {filtrados.length.toString().padStart(2, "0")}
                     </strong>
-                </div>
+                </div> */}
             </div>
 
             <section className="historico-summary">
@@ -133,7 +129,7 @@ function Historico() {
             </section>
 
             <section className="historico-panel">
-                <div className="historico-panel-heading">
+                {/* <div className="historico-panel-heading">
                     <div>
                         <h2>Registro de atividades</h2>
                         <p>
@@ -144,7 +140,7 @@ function Historico() {
                     <span className="historico-live-dot">
                         <i /> Histórico local
                     </span>
-                </div>
+                </div> */}
                 <div className="historico-filters">
                     <label className="historico-search">
                         <span aria-hidden="true">⌕</span>
