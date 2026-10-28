@@ -1,263 +1,269 @@
-import { useMemo, useState } from "react";
-import "./historico.css";
+import { useEffect, useMemo, useState } from 'react'
+import './historico.css'
 
-const registros = [
-    {
-        id: "CF-1048",
-        silo: "Silo 03",
-        codigo: "S-003",
-        tipo: "Conferência concluída",
-        responsavel: "Operador A",
-        data: "23/10/2026",
-        hora: "09:15",
-        status: "Concluída",
-        detalhe: "Quantidade conferida e registrada.",
-    },
-    {
-        id: "CF-1047",
-        silo: "Silo 01",
-        codigo: "S-001",
-        tipo: "Conferência concluída",
-        responsavel: "Operador B",
-        data: "23/10/2026",
-        hora: "08:42",
-        status: "Concluída",
-        detalhe: "Conferência finalizada sem divergências.",
-    },
-    {
-        id: "CF-1046",
-        silo: "Silo 04",
-        codigo: "S-004",
-        tipo: "Divergência identificada",
-        responsavel: "Operador A",
-        data: "22/10/2026",
-        hora: "14:03",
-        status: "Atenção",
-        detalhe: "Quantidade registrada precisa de revisão.",
-    },
-    {
-        id: "CF-1045",
-        silo: "Silo 02",
-        codigo: "S-002",
-        tipo: "Conferência iniciada",
-        responsavel: "Operador C",
-        data: "22/10/2026",
-        hora: "11:26",
-        status: "Pendente",
-        detalhe: "Conferência aguardando conclusão.",
-    },
-    {
-        id: "CF-1044",
-        silo: "Silo 05",
-        codigo: "S-005",
-        tipo: "Silo cadastrado",
-        responsavel: "Administrador",
-        data: "21/10/2026",
-        hora: "16:10",
-        status: "Informativo",
-        detalhe: "Registro ilustrativo de cadastro.",
-    },
-];
+const API_URL = 'http://localhost:3000/api/conferencia'
+
+function formatarSilo(valor) {
+    if (typeof valor === 'string' && valor.trim()) return valor.startsWith('SILO-') ? valor : valor
+    return Number.isInteger(Number(valor)) && valor !== null && valor !== ''
+        ? `SILO-${String(Number(valor)).padStart(3, '0')}`
+        : 'Não informado'
+}
+
+function formatarDataHora(valor) {
+    if (!valor) return { data: '—', hora: '—' }
+
+    const data = new Date(valor)
+    if (Number.isNaN(data.getTime())) return { data: '—', hora: '—' }
+
+    return {
+        data: data.toLocaleDateString('pt-BR'),
+        hora: data.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+        }),
+    }
+}
+
+function adaptarRegistro(registro) {
+    const { data, hora } = formatarDataHora(registro.dataHora || registro.data_hora)
+    const statusVisual = {
+        APROVADO: 'Concluída',
+        DIVERGENTE: 'Atenção',
+        POSICAO_DESCONHECIDA: 'Pendente',
+        SILO_INVALIDO: 'Atenção',
+        ERRO: 'Informativo',
+    }[registro.status] || 'Informativo'
+
+    const statusTexto = {
+        APROVADO: 'Aprovada',
+        DIVERGENTE: 'Divergente',
+        POSICAO_DESCONHECIDA: 'Posição desconhecida',
+        SILO_INVALIDO: 'Silo inválido',
+        ERRO: 'Erro',
+    }[registro.status] || registro.status || 'Sem status'
+
+    const solicitado = formatarSilo(registro.siloSolicitado ?? registro.silo_solicitado ?? registro.siloSolicitadoId)
+    const detectado = formatarSilo(registro.siloDetectado ?? registro.silo_detectado ?? registro.siloDetectadoId)
+
+    return {
+        id: `CF-${String(registro.id).padStart(4, '0')}`,
+        silo: solicitado,
+        codigo: solicitado !== 'Não informado' ? solicitado.replace('SILO-', 'S-') : '—',
+        tipo: `Conferência ${statusTexto.toLowerCase()}`,
+        responsavel: 'Sistema de simulação',
+        data,
+        hora,
+        status: statusVisual,
+        statusTexto,
+        statusOriginal: registro.status,
+        detalhe: `Destino solicitado: ${solicitado}. Posição detectada: ${detectado}. ${registro.mensagem || ''}`.trim(),
+        dataHora: registro.dataHora,
+    }
+}
 
 function Historico() {
-    const [busca, setBusca] = useState("");
-    const [filtro, setFiltro] = useState("Todos");
-    const [selecionado, setSelecionado] = useState(null);
+    const [registros, setRegistros] = useState([])
+    const [busca, setBusca] = useState('')
+    const [filtro, setFiltro] = useState('Todos')
+    const [selecionado, setSelecionado] = useState(null)
+    const [carregando, setCarregando] = useState(true)
+    const [erro, setErro] = useState('')
 
-    const filtrados = useMemo(
-        () =>
-            registros.filter((item) => {
-                const termo = busca.trim().toLowerCase();
-                const correspondeBusca =
-                    !termo ||
-                    [
-                        item.id,
-                        item.silo,
-                        item.codigo,
-                        item.tipo,
-                        item.responsavel,
-                    ].some((v) => v.toLowerCase().includes(termo));
-                const correspondeFiltro =
-                    filtro === "Todos" || item.status === filtro;
-                return correspondeBusca && correspondeFiltro;
-            }),
-        [busca, filtro],
-    );
+    async function carregarHistorico() {
+        setCarregando(true)
+        setErro('')
+
+        try {
+            const resposta = await fetch(`${API_URL}/historico`)
+            const dados = await resposta.json()
+
+            if (!resposta.ok) {
+                throw new Error(dados.mensagem || 'Não foi possível carregar o histórico.')
+            }
+
+            const lista = Array.isArray(dados) ? dados : (dados.registros || [])
+            setRegistros(lista.map(adaptarRegistro))
+        } catch (error) {
+            setErro(`Não foi possível conectar ao backend: ${error.message}`)
+        } finally {
+            setCarregando(false)
+        }
+    }
+
+    useEffect(() => {
+        carregarHistorico()
+    }, [])
+
+    const filtrados = useMemo(() => {
+        const termo = busca.trim().toLowerCase()
+
+        return registros.filter((item) => {
+            const correspondeBusca =
+                !termo ||
+                [item.id, item.silo, item.codigo, item.tipo, item.responsavel, item.detalhe]
+                    .some((valor) => String(valor).toLowerCase().includes(termo))
+
+            const correspondeFiltro =
+                filtro === 'Todos' ||
+                (filtro === 'Aprovadas' && item.statusOriginal === 'APROVADO') ||
+                (filtro === 'Divergentes' && item.statusOriginal === 'DIVERGENTE') ||
+                (filtro === 'Posição desconhecida' && item.statusOriginal === 'POSICAO_DESCONHECIDA') ||
+                (filtro === 'Erros' && ['ERRO', 'SILO_INVALIDO'].includes(item.statusOriginal))
+
+            return correspondeBusca && correspondeFiltro
+        })
+    }, [busca, filtro, registros])
+
+    const aprovadas = registros.filter((item) => item.statusOriginal === 'APROVADO').length
+    const divergentes = registros.filter((item) => item.statusOriginal === 'DIVERGENTE').length
+    const atencao = registros.filter((item) =>
+        ['POSICAO_DESCONHECIDA', 'SILO_INVALIDO', 'ERRO'].includes(item.statusOriginal),
+    ).length
 
     return (
         <main className="historico-page">
             <div className="historico-heading">
                 <div>
-                    <span className="historico-eyebrow">
-                        OPERAÇÃO / AUDITORIA
-                    </span>
+                    <span className="historico-eyebrow">OPERAÇÃO / AUDITORIA</span>
                     <h1>Histórico</h1>
+                    <p>Consulte as tentativas de conferência registradas pelo backend.</p>
                 </div>
-                {/* <div className="historico-total">
+                <div className="historico-total">
                     <span>REGISTROS EXIBIDOS</span>
-                    <strong>
-                        {filtrados.length.toString().padStart(2, "0")}
-                    </strong>
-                </div> */}
+                    <strong>{filtrados.length.toString().padStart(2, '0')}</strong>
+                </div>
             </div>
 
             <section className="historico-summary">
                 <article>
                     <span className="historico-summary-icon">◷</span>
                     <div>
-                        <small>Atividades registradas</small>
-                        <strong>128</strong>
-                        <span>no período demonstrativo</span>
+                        <small>Tentativas registradas</small>
+                        <strong>{registros.length}</strong>
+                        <span>retornadas pela API</span>
                     </div>
                 </article>
                 <article>
                     <span className="historico-summary-icon green">✓</span>
                     <div>
-                        <small>Conferências concluídas</small>
-                        <strong>96</strong>
-                        <span>registros de conclusão</span>
+                        <small>Conferências aprovadas</small>
+                        <strong>{aprovadas}</strong>
+                        <span>destino corresponde à posição</span>
                     </div>
                 </article>
                 <article>
                     <span className="historico-summary-icon amber">!</span>
                     <div>
-                        <small>Precisam de atenção</small>
-                        <strong>04</strong>
-                        <span>itens para revisar</span>
+                        <small>Divergências / erros</small>
+                        <strong>{divergentes + atencao}</strong>
+                        <span>tentativas que exigem atenção</span>
                     </div>
                 </article>
             </section>
 
             <section className="historico-panel">
-                {/* <div className="historico-panel-heading">
+                <div className="historico-panel-heading">
                     <div>
-                        <h2>Registro de atividades</h2>
-                        <p>
-                            Dados ilustrativos para a interface; ainda não
-                            conectados ao backend.
-                        </p>
+                        <h2>Registro de conferências</h2>
+                        <p>Os dados são carregados da API Express.</p>
                     </div>
-                    <span className="historico-live-dot">
-                        <i /> Histórico local
-                    </span>
-                </div> */}
+                    <span className="historico-live-dot"><i /> Histórico do backend</span>
+                </div>
+
                 <div className="historico-filters">
                     <label className="historico-search">
                         <span aria-hidden="true">⌕</span>
                         <input
                             value={busca}
-                            onChange={(e) => setBusca(e.target.value)}
-                            placeholder="Buscar por silo, registro ou responsável..."
+                            onChange={(event) => setBusca(event.target.value)}
+                            placeholder="Buscar por silo, registro ou detalhe..."
                         />
                     </label>
                     <label className="historico-filter-label">
-                        <span>Status</span>
-                        <select
-                            value={filtro}
-                            onChange={(e) => setFiltro(e.target.value)}
-                        >
+                        <span>Resultado</span>
+                        <select value={filtro} onChange={(event) => setFiltro(event.target.value)}>
                             <option>Todos</option>
-                            <option>Concluída</option>
-                            <option>Atenção</option>
-                            <option>Pendente</option>
-                            <option>Informativo</option>
+                            <option>Aprovadas</option>
+                            <option>Divergentes</option>
+                            <option>Posição desconhecida</option>
+                            <option>Erros</option>
                         </select>
                     </label>
+                    <button className="historico-refresh" type="button" onClick={carregarHistorico} disabled={carregando}>
+                        {carregando ? 'Atualizando...' : 'Atualizar'}
+                    </button>
                 </div>
+
+                {erro && <div className="historico-error" role="alert">{erro}</div>}
+
                 <div className="historico-list">
-                    {filtrados.map((item) => (
+                    {carregando ? (
+                        <div className="historico-empty">
+                            <strong>Carregando histórico...</strong>
+                            <p>Aguarde enquanto consultamos o backend.</p>
+                        </div>
+                    ) : filtrados.map((item) => (
                         <article className="historico-entry" key={item.id}>
-                            <div
-                                className={`historico-entry-icon ${item.status.toLowerCase()}`}
-                            >
-                                {item.status === "Concluída"
-                                    ? "✓"
-                                    : item.status === "Atenção"
-                                      ? "!"
-                                      : item.status === "Pendente"
-                                        ? "◷"
-                                        : "＋"}
+                            <div className={`historico-entry-icon ${item.status.toLowerCase()}`}>
+                                {item.statusOriginal === 'APROVADO'
+                                    ? '✓'
+                                    : item.statusOriginal === 'DIVERGENTE' || item.statusOriginal === 'SILO_INVALIDO'
+                                      ? '!'
+                                      : item.statusOriginal === 'POSICAO_DESCONHECIDA'
+                                        ? '◷'
+                                        : '+'}
                             </div>
                             <div className="historico-entry-main">
                                 <div className="historico-entry-title">
                                     <h3>{item.tipo}</h3>
-                                    <span
-                                        className={`historico-status ${item.status.toLowerCase()}`}
-                                    >
-                                        {item.status}
+                                    <span className={`historico-status ${item.status.toLowerCase()}`}>
+                                        {item.statusTexto}
                                     </span>
                                 </div>
                                 <p>{item.detalhe}</p>
                                 <div className="historico-entry-meta">
-                                    <span>
-                                        ▤ {item.silo}{" "}
-                                        <small>({item.codigo})</small>
-                                    </span>
+                                    <span>▤ {item.silo} <small>({item.codigo})</small></span>
                                     <span>♙ {item.responsavel}</span>
-                                    <span>
-                                        ◷ {item.data} · {item.hora}
-                                    </span>
+                                    <span>◷ {item.data} · {item.hora}</span>
                                 </div>
                             </div>
                             <button
                                 className="historico-detail-button"
                                 type="button"
-                                onClick={() =>
-                                    setSelecionado(
-                                        selecionado === item.id
-                                            ? null
-                                            : item.id,
-                                    )
-                                }
+                                onClick={() => setSelecionado(selecionado === item.id ? null : item.id)}
                             >
-                                {selecionado === item.id
-                                    ? "Fechar"
-                                    : "Detalhes"}{" "}
-                                <span>
-                                    {selecionado === item.id ? "−" : "＋"}
-                                </span>
+                                {selecionado === item.id ? 'Fechar' : 'Detalhes'}{' '}
+                                <span>{selecionado === item.id ? '−' : '+'}</span>
                             </button>
                             {selecionado === item.id && (
                                 <div className="historico-detail">
                                     <strong>Registro {item.id}</strong>
                                     <p>{item.detalhe}</p>
-                                    <span>
-                                        Responsável: {item.responsavel} · Data:{" "}
-                                        {item.data} às {item.hora}
-                                    </span>
+                                    <span>Responsável: {item.responsavel} · Data: {item.data} às {item.hora}</span>
                                 </div>
                             )}
                         </article>
                     ))}
-                    {filtrados.length === 0 && (
+
+                    {!carregando && !erro && filtrados.length === 0 && (
                         <div className="historico-empty">
                             <span>⌕</span>
-                            <strong>Nenhum registro encontrado</strong>
-                            <p>
-                                Tente mudar o termo da busca ou o filtro de
-                                status.
-                            </p>
+                            <strong>Nenhuma conferência encontrada</strong>
+                            <p>Faça uma conferência ou ajuste os filtros.</p>
                         </div>
                     )}
                 </div>
+
                 <div className="historico-footer">
-                    <span>
-                        Exibindo {filtrados.length} de {registros.length}{" "}
-                        registros de demonstração
-                    </span>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setBusca("");
-                            setFiltro("Todos");
-                        }}
-                    >
+                    <span>Exibindo {filtrados.length} de {registros.length} registros retornados pela API</span>
+                    <button type="button" onClick={() => { setBusca(''); setFiltro('Todos') }}>
                         Limpar filtros
                     </button>
                 </div>
             </section>
         </main>
-    );
+    )
 }
 
-export default Historico;
+export default Historico

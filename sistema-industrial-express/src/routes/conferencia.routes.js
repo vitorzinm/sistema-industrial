@@ -1,15 +1,10 @@
 const express = require("express");
-const {
-  simularPosicao,
-  validarConferencia,
-} = require("../controllers/conferencia.controller");
+const controller = require("../controllers/conferencia.controller");
 
 const router = express.Router();
 
-// POST /api/conferencia/simular
-router.post("/simular", simularPosicao);
-
-// POST /api/conferencia/validar
-router.post("/validar", validarConferencia);
+router.post("/simular", (req, res) => controller.simular(req, res));
+router.post("/validar", (req, res) => controller.validar(req, res));
+router.get("/historico", (req, res) => controller.historico(req, res));
 
 module.exports = router;

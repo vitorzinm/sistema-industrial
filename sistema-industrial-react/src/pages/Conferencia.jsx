@@ -1,133 +1,134 @@
+import { useState } from "react";
+import "./Conferencia.css";
 
-import { useState } from 'react'
-import './Conferencia.css'
-
-const API_URL = 'http://localhost:3000/api/conferencia'
+const API_URL = "http://localhost:3000/api/conferencia";
 
 const silosDisponiveis = Array.from(
     { length: 10 },
-    (_, i) => `SILO-${String(i + 1).padStart(3, '0')}`
-)
+    (_, i) => `SILO-${String(i + 1).padStart(3, "0")}`,
+);
 
 function numeroDoSilo(silo) {
-    return Number(silo.replace('SILO-', ''))
+    return Number(silo.replace("SILO-", ""));
 }
 
 function nomeDoSilo(numero) {
-    return `SILO-${String(numero).padStart(3, '0')}`
+    return `SILO-${String(numero).padStart(3, "0")}`;
 }
 
 function Conferencia() {
-    const [origem, setOrigem] = useState('')
-    const [destino, setDestino] = useState('')
-    const [status, setStatus] = useState('Aguardando')
-    const [mensagem, setMensagem] = useState('')
-    const [posicaoDetectada, setPosicaoDetectada] = useState(null)
-    const [confianca, setConfianca] = useState(null)
-    const [carregando, setCarregando] = useState(false)
+    const [origem, setOrigem] = useState("");
+    const [destino, setDestino] = useState("");
+    const [status, setStatus] = useState("Aguardando");
+    const [mensagem, setMensagem] = useState("");
+    const [posicaoDetectada, setPosicaoDetectada] = useState(null);
+    const [confianca, setConfianca] = useState(null);
+    const [carregando, setCarregando] = useState(false);
 
     async function iniciarConferencia(event) {
-        event.preventDefault()
+        event.preventDefault();
 
         if (!destino) {
-            setMensagem('Selecione o silo de destino.')
-            return
+            setMensagem("Selecione o silo de destino.");
+            return;
         }
 
-        setCarregando(true)
-        setMensagem('')
-        setPosicaoDetectada(null)
-        setConfianca(null)
+        setCarregando(true);
+        setMensagem("");
+        setPosicaoDetectada(null);
+        setConfianca(null);
 
         try {
             const resposta = await fetch(`${API_URL}/simular`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ totalSilos: 10 }),
-            })
+            });
 
-            const dados = await resposta.json()
+            const dados = await resposta.json();
 
             if (!resposta.ok) {
-                throw new Error(dados.mensagem || 'Não foi possível simular a posição.')
+                throw new Error(
+                    dados.mensagem || "Não foi possível simular a posição.",
+                );
             }
 
-            setPosicaoDetectada(dados.siloDetectado)
-            setOrigem(nomeDoSilo(dados.siloDetectado))
-            setConfianca(dados.confianca)
-            setStatus('Em andamento')
+            setPosicaoDetectada(dados.siloDetectado);
+            setOrigem(nomeDoSilo(dados.siloDetectado));
+            setConfianca(dados.confianca);
+            setStatus("Em andamento");
             setMensagem(
-                `Posição simulada: ${nomeDoSilo(dados.siloDetectado)}. Agora confirme o destino.`
-            )
+                `Posição simulada: ${nomeDoSilo(dados.siloDetectado)}. Agora confirme o destino.`,
+            );
         } catch (erro) {
-            setStatus('Erro')
+            setStatus("Erro");
             setMensagem(
-                `Não foi possível conectar ao backend: ${erro.message}`
-            )
+                `Não foi possível conectar ao backend: ${erro.message}`,
+            );
         } finally {
-            setCarregando(false)
+            setCarregando(false);
         }
     }
 
     async function concluirConferencia() {
         if (!destino || posicaoDetectada === null) {
-            setMensagem('Simule a posição e selecione um silo de destino.')
-            return
+            setMensagem("Simule a posição e selecione um silo de destino.");
+            return;
         }
 
-        setCarregando(true)
-        setMensagem('')
+        setCarregando(true);
+        setMensagem("");
 
         try {
             const resposta = await fetch(`${API_URL}/validar`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    siloSolicitado: numeroDoSilo(destino),
+                    siloSolicitadoId: numeroDoSilo(destino),
                 }),
-            })
+            });
 
-            const dados = await resposta.json()
+            const dados = await resposta.json();
 
             if (
                 resposta.ok &&
-                dados.status !== 'DIVERGENTE' &&
-                dados.status !== 'POSICAO_DESCONHECIDA'
+                dados.status !== "DIVERGENTE" &&
+                dados.status !== "POSICAO_DESCONHECIDA"
             ) {
-                setStatus('Concluída')
+                setStatus("Concluída");
                 setMensagem(
-                    dados.mensagem || 'Conferência aprovada pelo backend.'
-                )
+                    dados.mensagem || "Conferência aprovada pelo backend.",
+                );
             } else {
-                setStatus('Divergência')
+                setStatus("Divergência");
                 setMensagem(
-                    dados.mensagem || 'A conferência não foi aprovada.'
-                )
+                    dados.mensagem || "A conferência não foi aprovada.",
+                );
             }
         } catch (erro) {
-            setStatus('Erro')
+            setStatus("Erro");
             setMensagem(
-                `Não foi possível conectar ao backend: ${erro.message}`
-            )
+                `Não foi possível conectar ao backend: ${erro.message}`,
+            );
         } finally {
-            setCarregando(false)
+            setCarregando(false);
         }
     }
 
     function reiniciarConferencia() {
-        setDestino('')
-        setOrigem('')
-        setPosicaoDetectada(null)
-        setConfianca(null)
-        setStatus('Aguardando')
-        setMensagem('')
+        setDestino("");
+        setOrigem("");
+        setPosicaoDetectada(null);
+        setConfianca(null);
+        setStatus("Aguardando");
+        setMensagem("");
     }
 
-    const operacaoIniciada = status === 'Em andamento'
+    const operacaoIniciada = status === "Em andamento";
 
     return (
         <main className="conference-page">
@@ -137,15 +138,16 @@ function Conferencia() {
                         OPERAÇÃO INDUSTRIAL
                     </span>
                     <h1>Conferência de silos</h1>
+                    <p>Defina o destino e acompanhe a operação do carrinho.</p>
                 </div>
 
                 <div
                     className={`conference-status ${
                         operacaoIniciada
-                            ? 'running'
-                            : status === 'Concluída'
-                              ? 'completed'
-                              : ''
+                            ? "running"
+                            : status === "Concluída"
+                              ? "completed"
+                              : ""
                     }`}
                 >
                     <span className="conference-status-dot" />
@@ -169,7 +171,7 @@ function Conferencia() {
                                 <label className="conference-field">
                                     <span>Posição detectada do carrinho</span>
                                     <input
-                                        value={origem || 'Ainda não simulada'}
+                                        value={origem || "Ainda não simulada"}
                                         readOnly
                                     />
                                     <small>
@@ -184,10 +186,12 @@ function Conferencia() {
                                     <select
                                         value={destino}
                                         onChange={(event) => {
-                                            setDestino(event.target.value)
-                                            setMensagem('')
+                                            setDestino(event.target.value);
+                                            setMensagem("");
                                         }}
-                                        disabled={operacaoIniciada || carregando}
+                                        disabled={
+                                            operacaoIniciada || carregando
+                                        }
                                     >
                                         <option value="">
                                             Selecione um silo
@@ -207,9 +211,7 @@ function Conferencia() {
                             {mensagem && (
                                 <div
                                     className={`conference-message ${
-                                        status === 'Concluída'
-                                            ? 'success'
-                                            : ''
+                                        status === "Concluída" ? "success" : ""
                                     }`}
                                     role="status"
                                 >
@@ -219,7 +221,8 @@ function Conferencia() {
 
                             {confianca !== null && (
                                 <p>
-                                    Confiança informada: {(confianca * 100).toFixed(0)}%
+                                    Confiança informada:{" "}
+                                    {(confianca * 100).toFixed(0)}%
                                 </p>
                             )}
 
@@ -228,11 +231,13 @@ function Conferencia() {
                                     <button
                                         className="conference-primary-button"
                                         type="submit"
-                                        disabled={carregando || status === 'Concluída'}
+                                        disabled={
+                                            carregando || status === "Concluída"
+                                        }
                                     >
                                         {carregando
-                                            ? 'Processando...'
-                                            : '▶ Simular posição'}
+                                            ? "Processando..."
+                                            : "▶ Simular posição"}
                                     </button>
                                 ) : (
                                     <>
@@ -251,13 +256,13 @@ function Conferencia() {
                                             disabled={carregando}
                                         >
                                             {carregando
-                                                ? 'Validando...'
-                                                : '✓ Validar destino'}
+                                                ? "Validando..."
+                                                : "✓ Validar destino"}
                                         </button>
                                     </>
                                 )}
 
-                                {status === 'Concluída' && (
+                                {status === "Concluída" && (
                                     <button
                                         className="conference-primary-button"
                                         type="button"
@@ -267,7 +272,7 @@ function Conferencia() {
                                     </button>
                                 )}
 
-                                {status === 'Divergência' && (
+                                {status === "Divergência" && (
                                     <button
                                         className="conference-primary-button"
                                         type="button"
@@ -277,7 +282,7 @@ function Conferencia() {
                                     </button>
                                 )}
 
-                                {status === 'Erro' && (
+                                {status === "Erro" && (
                                     <button
                                         className="conference-secondary-button"
                                         type="button"
@@ -320,7 +325,7 @@ function Conferencia() {
                                 className="conference-secondary-button"
                                 onClick={() =>
                                     setMensagem(
-                                        'O leitor de câmera ainda não foi integrado. Selecione o silo manualmente.'
+                                        "O leitor de câmera ainda não foi integrado. Selecione o silo manualmente.",
                                     )
                                 }
                             >
@@ -339,7 +344,7 @@ function Conferencia() {
                             </div>
                             <span
                                 className={`cart-status-dot ${
-                                    operacaoIniciada ? 'active' : ''
+                                    operacaoIniciada ? "active" : ""
                                 }`}
                             />
                         </div>
@@ -348,12 +353,14 @@ function Conferencia() {
                             <div className="cart-track">
                                 <div className="cart-location">
                                     <span className="cart-location-dot" />
-                                    <span>{origem || 'Posição desconhecida'}</span>
+                                    <span>
+                                        {origem || "Posição desconhecida"}
+                                    </span>
                                 </div>
 
                                 <div
                                     className={`cart-line ${
-                                        operacaoIniciada ? 'moving' : ''
+                                        operacaoIniciada ? "moving" : ""
                                     }`}
                                 >
                                     <span className="cart-symbol">▰</span>
@@ -361,7 +368,9 @@ function Conferencia() {
 
                                 <div className="cart-location destination">
                                     <span className="cart-location-dot" />
-                                    <span>{destino || 'Destino não definido'}</span>
+                                    <span>
+                                        {destino || "Destino não definido"}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -369,29 +378,29 @@ function Conferencia() {
                         <div className="cart-info-row">
                             <span>Status</span>
                             <strong>
-                                {status === 'Em andamento'
-                                    ? 'Aguardando validação'
-                                    : status === 'Divergência'
-                                      ? 'Operação bloqueada'
+                                {status === "Em andamento"
+                                    ? "Aguardando validação"
+                                    : status === "Divergência"
+                                      ? "Operação bloqueada"
                                       : status}
                             </strong>
                         </div>
 
                         <div className="cart-info-row">
                             <span>Origem detectada</span>
-                            <strong>{origem || '—'}</strong>
+                            <strong>{origem || "—"}</strong>
                         </div>
 
                         <div className="cart-info-row">
                             <span>Destino solicitado</span>
-                            <strong>{destino || '—'}</strong>
+                            <strong>{destino || "—"}</strong>
                         </div>
 
                         <div className="cart-note">
                             <span>ⓘ</span>
                             <p>
-                                A posição ainda é simulada pelo backend.
-                                Nenhum sensor ou câmera está conectado.
+                                A posição ainda é simulada pelo backend. Nenhum
+                                sensor ou câmera está conectado.
                             </p>
                         </div>
                     </article>
@@ -401,8 +410,8 @@ function Conferencia() {
                         <div>
                             <h3>Próxima etapa</h3>
                             <p>
-                                Integrar os silos cadastrados e o histórico
-                                de conferências à API.
+                                Integrar os silos cadastrados e o histórico de
+                                conferências à API.
                             </p>
                         </div>
                     </article>
@@ -414,7 +423,7 @@ function Conferencia() {
                 <span>Modo de demonstração</span>
             </footer>
         </main>
-    )
+    );
 }
 
-export default Conferencia
+export default Conferencia;

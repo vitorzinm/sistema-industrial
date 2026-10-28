@@ -1,75 +1,98 @@
+const db = require("../config/database");
+
 class ConferenciaService {
-  constructor() {
-    this.posicaoDetectada = null;
-    this.confianca = 0;
-    this.totalSilos = 0;
-  }
+  async simularPosicao(totalSilos = 10) {
+    const silos = await db("silos").where({ status: "ATIVO" }).orderBy("id");
 
-  // Simula a posição atual do carrinho.
-  sortearPosicao(totalSilos = 10) {
-    if (!Number.isInteger(totalSilos) || totalSilos < 1) {
-      return {
-        erro: "A quantidade de silos deve ser um inteiro positivo.",
-      };
+    if (silos.length === 0) {
+      throw new Error("Nenhum silo ativo cadastrado");
     }
 
-    this.totalSilos = totalSilos;
-    this.posicaoDetectada = Math.floor(Math.random() * this.totalSilos) + 1;
-
-    // Confiança fictícia: não representa uma câmera real.
-    this.confianca = 0.98;
+    const indice = Math.floor(Math.random() * silos.length);
+    const siloDetectado = silos[indice];
 
     return {
-      status: "POSICAO_SIMULADA",
-      mensagem: "Nova posição simulada.",
-      siloDetectado: this.posicaoDetectada,
-      totalSilos: this.totalSilos,
-      confianca: this.confianca,
+      siloDetectadoId: siloDetectado.id,
+      siloDetectado: siloDetectado.nome,
+      confianca: 0.98,
+      mensagem: "Posição simulada com sucesso",
     };
   }
 
-  // Confere o destino solicitado com a posição detectada.
-  validar(siloSolicitado) {
-    if (!Number.isInteger(siloSolicitado) || siloSolicitado < 1) {
-      return {
-        status: "ERRO",
-        mensagem: "O silo solicitado deve ser um número inteiro positivo.",
-      };
+  async validar(siloSolicitadoId) {
+    if (!siloSolicitadoId) {
+      const erro = new Error("Informe o ID do silo solicitado");
+      erro.statusCode = 400;
+      throw erro;
     }
 
-    if (this.totalSilos === 0 || this.posicaoDetectada === null) {
-      return {
-        status: "POSICAO_DESCONHECIDA",
-        mensagem: "Simule a posição do carrinho antes de conferir.",
-      };
+    const siloSolicitado = await db("silos")
+      .where({ id: siloSolicitadoId, status: "ATIVO" })
+      .first();
+
+    if (!siloSolicitado) {
+      const erro = new Error("Silo solicitado não encontrado ou inativo");
+      erro.statusCode = 404;
+      throw erro;
     }
 
-    if (siloSolicitado > this.totalSilos) {
-      return {
-        status: "SILO_INVALIDO",
-        mensagem: `O silo solicitado não existe. Existem ${this.totalSilos} silos cadastrados.`,
-        siloSolicitado,
-        totalSilos: this.totalSilos,
-      };
+    const silos = await db("silos").where({ status: "ATIVO" }).orderBy("id");
+
+    if (silos.length === 0) {
+      throw new Error("Nenhum silo ativo cadastrado");
     }
 
-    if (this.confianca < 0.85) {
-      return {
-        status: "POSICAO_DESCONHECIDA",
-        mensagem: "A confiança da detecção está abaixo do mínimo permitido.",
-      };
-    }
+    // Simulação provisória da posição do carrinho
+    const indice = Math.floor(Math.random() * silos.length);
+    const siloDetectado = silos[indice];
 
-    const corresponde = siloSolicitado === this.posicaoDetectada;
+    const aprovado = siloDetectado.id === siloSolicitado.id;
+    const status = aprovado ? "APROVADO" : "DIVERGENTE";
+    const mensagem = aprovado
+      ? "Silo confirmado. Conferência aprovada."
+      : `Divergência: solicitado ${siloSolicitado.nome}, detectado ${siloDetectado.nome}.`;
+
+    const [conferenciaId] = await db("conferencias").insert({
+      silo_solicitado_id: siloSolicitado.id,
+      silo_detectado_id: siloDetectado.id,
+      status,
+      mensagem,
+      confianca: 0.98,
+    });
 
     return {
-      status: corresponde ? "APROVADO" : "DIVERGENTE",
-      siloSolicitado,
-      siloDetectado: this.posicaoDetectada,
-      mensagem: corresponde
-        ? "Conferência aprovada!"
-        : "Conferência bloqueada: os silos são diferentes.",
+      id: conferenciaId,
+      siloSolicitado: siloSolicitado.nome,
+      siloDetectado: siloDetectado.nome,
+      status,
+      mensagem,
+      confianca: 0.98,
+      dataHora: new Date().toISOString(),
     };
+  }
+
+  async listarHistorico() {
+    return db("conferencias")
+      .leftJoin(
+        "silos as solicitado",
+        "conferencias.silo_solicitado_id",
+        "solicitado.id",
+      )
+      .leftJoin(
+        "silos as detectado",
+        "conferencias.silo_detectado_id",
+        "detectado.id",
+      )
+      .select(
+        "conferencias.id",
+        "solicitado.nome as siloSolicitado",
+        "detectado.nome as siloDetectado",
+        "conferencias.status",
+        "conferencias.mensagem",
+        "conferencias.confianca",
+        "conferencias.data_hora as dataHora",
+      )
+      .orderBy("conferencias.data_hora", "desc");
   }
 }
 
