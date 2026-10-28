@@ -9,9 +9,14 @@ const silosDisponiveis = Array.from(
 );
 
 function numeroDoSilo(silo) {
-    return Number(silo.replace("SILO-", ""));
-}
+    if (typeof silo === "number") {
+        return silo;
+    }
 
+    const numero = String(silo).match(/\d+/g);
+
+    return numero ? Number(numero[numero.length - 1]) : NaN;
+}
 function nomeDoSilo(numero) {
     return `SILO-${String(numero).padStart(3, "0")}`;
 }
@@ -61,7 +66,7 @@ function Conferencia() {
             setStatus("Em andamento");
             setMensagem(
                 `Posição simulada: ${nomeDoSilo(dados.siloDetectado)}. Agora confirme o destino.`,
-            );
+            );  
         } catch (erro) {
             setStatus("Erro");
             setMensagem(
@@ -72,52 +77,27 @@ function Conferencia() {
         }
     }
 
-    async function concluirConferencia() {
-        if (!destino || posicaoDetectada === null) {
-            setMensagem("Simule a posição e selecione um silo de destino.");
-            return;
-        }
-
-        setCarregando(true);
-        setMensagem("");
-
-        try {
-            const resposta = await fetch(`${API_URL}/validar`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    siloSolicitadoId: numeroDoSilo(destino),
-                }),
-            });
-
-            const dados = await resposta.json();
-
-            if (
-                resposta.ok &&
-                dados.status !== "DIVERGENTE" &&
-                dados.status !== "POSICAO_DESCONHECIDA"
-            ) {
-                setStatus("Concluída");
-                setMensagem(
-                    dados.mensagem || "Conferência aprovada pelo backend.",
-                );
-            } else {
-                setStatus("Divergência");
-                setMensagem(
-                    dados.mensagem || "A conferência não foi aprovada.",
-                );
-            }
-        } catch (erro) {
-            setStatus("Erro");
-            setMensagem(
-                `Não foi possível conectar ao backend: ${erro.message}`,
-            );
-        } finally {
-            setCarregando(false);
-        }
+    function concluirConferencia() {
+    if (!destino || posicaoDetectada === null) {
+        setMensagem("Simule a posição e selecione um silo de destino.")
+        return
     }
+
+    const siloSolicitado = numeroDoSilo(destino)
+    const siloDetectado = numeroDoSilo(posicaoDetectada);
+
+    if (siloSolicitado === siloDetectado) {
+        setStatus("Concluída")
+        setMensagem(
+            `Conferência aprovada! Solicitado ${nomeDoSilo(siloSolicitado)}, detectado ${nomeDoSilo(siloDetectado)}.`
+        )
+    } else {
+        setStatus("Divergência")
+        setMensagem(
+            `Divergência: solicitado ${nomeDoSilo(siloSolicitado)}, detectado ${nomeDoSilo(siloDetectado)}.`
+        )
+    }
+}
 
     function reiniciarConferencia() {
         setDestino("");
