@@ -266,7 +266,7 @@
     color: #9198a1;
     font-size: 10px;
 }
-@media (max-width:1050px) {
+@media (max-width: 1050px) {
     .silos-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }

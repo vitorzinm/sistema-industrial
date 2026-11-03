@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import "./Conferencia.css";
 
 const API_URL = "http://localhost:3000/api/conferencia";
@@ -9,16 +10,7 @@ const silosDisponiveis = Array.from(
 );
 
 function numeroDoSilo(silo) {
-    if (typeof silo === "number") {
-        return silo;
-    }
-
-    const numero = String(silo).match(/\d+/g);
-
-    return numero ? Number(numero[numero.length - 1]) : NaN;
-}
-function nomeDoSilo(numero) {
-    return `SILO-${String(numero).padStart(3, "0")}`;
+    return Number(silo.replace("SILO-", ""));
 }
 
 function Conferencia() {
@@ -29,6 +21,7 @@ function Conferencia() {
     const [posicaoDetectada, setPosicaoDetectada] = useState(null);
     const [confianca, setConfianca] = useState(null);
     const [carregando, setCarregando] = useState(false);
+    const [simulacaoId, setSimulacaoId] = useState(null);
 
     async function iniciarConferencia(event) {
         event.preventDefault();
@@ -42,6 +35,7 @@ function Conferencia() {
         setMensagem("");
         setPosicaoDetectada(null);
         setConfianca(null);
+        setSimulacaoId(null);
 
         try {
             const resposta = await fetch(`${API_URL}/simular`, {
@@ -60,13 +54,15 @@ function Conferencia() {
                 );
             }
 
-            setPosicaoDetectada(dados.siloDetectado);
-            setOrigem(nomeDoSilo(dados.siloDetectado));
+            setPosicaoDetectada(dados.siloDetectadoId);
+            setOrigem(dados.siloDetectado);
+            setSimulacaoId(dados.simulacaoId);
             setConfianca(dados.confianca);
             setStatus("Em andamento");
+
             setMensagem(
-                `Posição simulada: ${nomeDoSilo(dados.siloDetectado)}. Agora confirme o destino.`,
-            );  
+                `Posição simulada: ${dados.siloDetectado}. Agora confirme o destino.`,
+            );
         } catch (erro) {
             setStatus("Erro");
             setMensagem(
@@ -77,27 +73,71 @@ function Conferencia() {
         }
     }
 
-    function concluirConferencia() {
-    if (!destino || posicaoDetectada === null) {
-        setMensagem("Simule a posição e selecione um silo de destino.")
-        return
-    }
+    async function concluirConferencia() {
+        if (!destino) {
+            setMensagem("Selecione o silo de destino.");
+            return;
+        }
 
-    const siloSolicitado = numeroDoSilo(destino)
-    const siloDetectado = numeroDoSilo(posicaoDetectada);
+        if (posicaoDetectada == null) {
+            setStatus("Erro");
+            setMensagem(
+                "A simulação não retornou siloDetectadoId. Confira a resposta de /simular.",
+            );
+            return;
+        }
 
-    if (siloSolicitado === siloDetectado) {
-        setStatus("Concluída")
-        setMensagem(
-            `Conferência aprovada! Solicitado ${nomeDoSilo(siloSolicitado)}, detectado ${nomeDoSilo(siloDetectado)}.`
-        )
-    } else {
-        setStatus("Divergência")
-        setMensagem(
-            `Divergência: solicitado ${nomeDoSilo(siloSolicitado)}, detectado ${nomeDoSilo(siloDetectado)}.`
-        )
+        if (!simulacaoId) {
+            setStatus("Erro");
+            setMensagem(
+                "A simulação não retornou simulacaoId. Confira o método simularPosicao() do backend.",
+            );
+            return;
+        }
+
+        setCarregando(true);
+        setMensagem("");
+
+        try {
+            const resposta = await fetch(`${API_URL}/validar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    siloSolicitadoId: numeroDoSilo(destino),
+                    simulacaoId,
+                }),
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setStatus("Erro");
+                setMensagem(
+                    dados.mensagem || "Não foi possível validar a conferência.",
+                );
+            } else if (dados.status === "APROVADO") {
+                setStatus("Concluída");
+                setMensagem(
+                    dados.mensagem || "Conferência aprovada pelo backend.",
+                );
+            } else if (dados.status === "DIVERGENTE") {
+                setStatus("Divergência");
+                setMensagem(dados.mensagem || "O carrinho está em outro silo.");
+            } else {
+                setStatus("Erro");
+                setMensagem("O backend retornou um resultado não reconhecido.");
+            }
+        } catch (erro) {
+            setStatus("Erro");
+            setMensagem(
+                `Não foi possível conectar ao backend: ${erro.message}`,
+            );
+        } finally {
+            setCarregando(false);
+        }
     }
-}
 
     function reiniciarConferencia() {
         setDestino("");
@@ -106,6 +146,7 @@ function Conferencia() {
         setConfianca(null);
         setStatus("Aguardando");
         setMensagem("");
+        setSimulacaoId(null);
     }
 
     const operacaoIniciada = status === "Em andamento";

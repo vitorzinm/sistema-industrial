@@ -4,37 +4,46 @@ class ConferenciaController {
   async simular(req, res) {
     try {
       const resultado = await conferenciaService.simularPosicao();
+
       return res.status(200).json(resultado);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({
-        mensagem: error.message || "Erro ao simular posição",
+
+      return res.status(error.statusCode || 500).json({
+        mensagem: error.message || "Erro ao simular posição.",
       });
     }
   }
 
   async validar(req, res) {
     try {
-      const { siloSolicitadoId } = req.body;
-      const resultado = await conferenciaService.validar(siloSolicitadoId);
+      const { siloSolicitadoId, simulacaoId } = req.body ?? {};
+
+      const resultado = await conferenciaService.validar(
+        siloSolicitadoId,
+        simulacaoId,
+      );
 
       return res.status(200).json(resultado);
     } catch (error) {
       console.error(error);
+
       return res.status(error.statusCode || 500).json({
-        mensagem: error.message || "Erro ao validar conferência",
+        mensagem: error.message || "Erro ao validar conferência.",
       });
     }
   }
 
   async historico(req, res) {
     try {
-      const historico = await conferenciaService.listarHistorico();
-      return res.status(200).json(historico);
+      const registros = await conferenciaService.listarHistorico();
+
+      return res.status(200).json(registros);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({
-        mensagem: "Erro ao consultar histórico",
+
+      return res.status(error.statusCode || 500).json({
+        mensagem: error.message || "Erro ao consultar histórico.",
       });
     }
   }
