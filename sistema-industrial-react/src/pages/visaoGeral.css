@@ -7,8 +7,8 @@
     min-height: calc(100vh - 58px);
     margin: 0;
     padding: 32px clamp(20px, 4.6vw, 66px) 24px;
-    background: #0b1522;
-    color: #f1f5f9;
+    background: #0d1117;
+    color: #e6edf3;
     font-family:
         Inter,
         system-ui,
@@ -38,7 +38,7 @@
 .overview .eyebrow {
     display: block;
     margin-bottom: 8px;
-    color: #f59e0b;
+    color: #58a6ff;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1.5px;
@@ -46,7 +46,7 @@
 
 .overview-heading h1 {
     margin: 0 0 10px;
-    color: #f8fafc;
+    color: #e6edf3;
     font-size: clamp(26px, 2.2vw, 34px);
     line-height: 1.2;
     font-weight: 750;
@@ -54,7 +54,7 @@
 
 .overview-heading p {
     margin: 0;
-    color: #91a0b4;
+    color: #9198a1;
     font-size: 14px;
     line-height: 1.6;
 }
@@ -67,9 +67,9 @@
     gap: 9px;
     min-height: 42px;
     padding: 0 17px;
-    border: 1px solid #fbbf24;
+    border: 1px solid #79c0ff;
     border-radius: 9px;
-    background: #f59e0b;
+    background: #58a6ff;
     color: #172033;
     font-size: 13px;
     font-weight: 750;
@@ -80,7 +80,7 @@
 }
 
 .overview-primary-button:hover {
-    background: #fbbf24;
+    background: #79c0ff;
     transform: translateY(-1px);
 }
 
@@ -102,7 +102,7 @@
     min-width: 0;
     padding: 20px;
     overflow: hidden;
-    border: 1px solid #253548;
+    border: 1px solid #30363d;
     border-radius: 13px;
     background: linear-gradient(145deg, #142235 0%, #101c2b 100%);
     box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
@@ -122,19 +122,19 @@
 }
 
 .overview-stat-icon.orange {
-    color: #fbbf24;
+    color: #79c0ff;
     background: rgb(245 158 11 / 12%);
 }
 .overview-stat-icon.green {
-    color: #4ade80;
+    color: #3fb950;
     background: rgb(74 222 128 / 10%);
 }
 .overview-stat-icon.yellow {
-    color: #facc15;
+    color: #d29922;
     background: rgb(250 204 21 / 10%);
 }
 .overview-stat-icon.blue {
-    color: #60a5fa;
+    color: #58a6ff;
     background: rgb(96 165 250 / 10%);
 }
 
@@ -147,7 +147,7 @@
 
 .overview-stat-card h2 {
     margin: 0 0 8px;
-    color: #f8fafc;
+    color: #e6edf3;
     font-size: clamp(22px, 2vw, 28px);
     line-height: 1.2;
     font-weight: 750;
@@ -173,9 +173,9 @@
 .overview-panel {
     min-width: 0;
     padding: 22px;
-    border: 1px solid #253548;
+    border: 1px solid #30363d;
     border-radius: 13px;
-    background: #111e2d;
+    background: #161b22;
     box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
 }
 
@@ -189,7 +189,7 @@
 
 .overview-panel-heading h2 {
     margin: 0 0 7px;
-    color: #f1f5f9;
+    color: #e6edf3;
     font-size: 17px;
     line-height: 1.35;
     font-weight: 750;
@@ -197,7 +197,7 @@
 
 .overview-panel-heading p {
     margin: 0;
-    color: #91a0b4;
+    color: #9198a1;
     font-size: 12px;
     line-height: 1.5;
 }
@@ -207,7 +207,7 @@
     border: 0;
     padding: 3px 0;
     background: transparent;
-    color: #fbbf24;
+    color: #79c0ff;
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -271,7 +271,7 @@
 }
 
 .silo-information span {
-    color: #8293a8;
+    color: #9198a1;
     font-size: 11px;
 }
 
@@ -298,17 +298,17 @@
 }
 
 .silo-status.success {
-    color: #4ade80;
+    color: #3fb950;
     background: rgb(74 222 128 / 9%);
     border-color: rgb(74 222 128 / 18%);
 }
 .silo-status.warning {
-    color: #facc15;
+    color: #d29922;
     background: rgb(250 204 21 / 9%);
     border-color: rgb(250 204 21 / 18%);
 }
 .silo-status.progress {
-    color: #60a5fa;
+    color: #58a6ff;
     background: rgb(96 165 250 / 9%);
     border-color: rgb(96 165 250 / 18%);
 }
@@ -318,7 +318,7 @@
     flex-direction: column;
     gap: 10px;
     margin-top: 15px;
-    color: #8293a8;
+    color: #9198a1;
     font-size: 11px;
 }
 
@@ -334,7 +334,7 @@
     width: 16.666%;
     height: 100%;
     border-radius: inherit;
-    background: #f59e0b;
+    background: #58a6ff;
 }
 
 .activity-live {
@@ -342,7 +342,7 @@
     flex: 0 0 auto;
     align-items: center;
     gap: 7px;
-    color: #4ade80;
+    color: #3fb950;
     font-size: 11px;
 }
 
@@ -376,16 +376,16 @@
     height: 29px;
     border: 1px solid currentColor;
     border-radius: 50%;
-    background: #111e2d;
+    background: #161b22;
     font-size: 13px;
     font-weight: 800;
 }
 
 .activity-icon.success {
-    color: #4ade80;
+    color: #3fb950;
 }
 .activity-icon.progress {
-    color: #60a5fa;
+    color: #58a6ff;
 }
 
 .activity-line {
@@ -412,14 +412,14 @@
 }
 
 .activity-information span {
-    color: #8293a8;
+    color: #9198a1;
     font-size: 11px;
 }
 
 .activity-row time {
     flex: 0 0 auto;
     padding-top: 4px;
-    color: #8293a8;
+    color: #9198a1;
     font-size: 11px;
     font-variant-numeric: tabular-nums;
 }
@@ -433,9 +433,9 @@
     margin-top: 7px;
     padding: 17px 0 0;
     border: 0;
-    border-top: 1px solid #253548;
+    border-top: 1px solid #30363d;
     background: transparent;
-    color: #fbbf24;
+    color: #79c0ff;
     font: inherit;
     font-size: 12px;
     font-weight: 650;
@@ -469,7 +469,7 @@
     border: 1px solid rgb(245 158 11 / 35%);
     border-radius: 11px;
     background: rgb(245 158 11 / 12%);
-    color: #fbbf24;
+    color: #79c0ff;
     font-size: 21px;
 }
 
@@ -480,14 +480,14 @@
 
 .overview-bottom-banner h2 {
     margin: 0 0 6px;
-    color: #f1f5f9;
+    color: #e6edf3;
     font-size: 15px;
     line-height: 1.4;
 }
 
 .overview-bottom-banner p {
     margin: 0;
-    color: #91a0b4;
+    color: #9198a1;
     font-size: 12px;
     line-height: 1.5;
 }
@@ -497,7 +497,7 @@
     border: 0;
     padding: 8px 0 8px 12px;
     background: transparent;
-    color: #fbbf24;
+    color: #79c0ff;
     font: inherit;
     font-size: 12px;
     font-weight: 750;

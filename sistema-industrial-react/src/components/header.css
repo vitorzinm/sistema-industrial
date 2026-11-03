@@ -6,9 +6,9 @@
     justify-content: space-between;
     gap: 24px;
     padding: 16px 32px;
-    background: #0b1522;
+    background: #0d1117;
     border-bottom: 1px solid #293646;
-    color: #f1f5f9;
+    color: #e6edf3;
     box-sizing: border-box;
     font-family: Inter, system-ui, sans-serif;
 }
@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #f1f5f9;
+    color: #e6edf3;
     text-decoration: none;
     flex-shrink: 0;
 }
@@ -28,7 +28,7 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: #f59e0b;
+    background: #58a6ff;
     color: #111827;
     font-size: 25px;
     font-weight: 800;
@@ -41,7 +41,7 @@
 }
 
 .logo-text span {
-    color: #f59e0b;
+    color: #58a6ff;
 }
 
 .header-nav {
@@ -70,14 +70,14 @@
 }
 
 .nav-link:hover {
-    background: #172334;
-    color: #f1f5f9;
+    background: #21262d;
+    color: #e6edf3;
 }
 
 .nav-link.active {
-    border-color: #59401d;
-    background: #302617;
-    color: #fbbf24;
+    border-color: #30363d;
+    background: #182b43;
+    color: #79c0ff;
 }
 
 .nav-icon {
@@ -104,8 +104,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #4ade80;
-    box-shadow: 0 0 8px #4ade8055;
+    background: #3fb950;
+    box-shadow: 0 0 8px #3fb95055;
 }
 
 .notification-button,
@@ -115,9 +115,9 @@
     place-items: center;
     width: 38px;
     height: 38px;
-    border: 1px solid #35465b;
+    border: 1px solid #3d444d;
     border-radius: 9px;
-    background: #172334;
+    background: #21262d;
     color: #dce5ef;
     font-size: 16px;
     cursor: pointer;
@@ -133,7 +133,7 @@
     height: 16px;
     padding: 0 3px;
     border-radius: 10px;
-    background: #f59e0b;
+    background: #58a6ff;
     color: #111827;
     font-size: 9px;
     font-weight: 800;
@@ -142,7 +142,7 @@
 .user-profile {
     border: 0;
     border-radius: 50%;
-    background: #35465b;
+    background: #3d444d;
     font-size: 12px;
     font-weight: 800;
 }
