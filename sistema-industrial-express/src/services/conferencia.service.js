@@ -1,5 +1,6 @@
 const db = require("../config/database");
 const { randomUUID } = require("node:crypto");
+const conferenciaRepository = require("../repository/conferencia.repository");
 
 class ConferenciaService {
   constructor() {
@@ -7,7 +8,7 @@ class ConferenciaService {
   }
 
   async simularPosicao() {
-    const silos = await db("silos").where({ status: "ATIVO" }).orderBy("id");
+    const silos = await conferenciaRepository.listarSilos();
 
     if (silos.length === 0) {
       const erro = new Error("Nenhum silo ativo cadastrado.");
@@ -112,13 +113,16 @@ class ConferenciaService {
         ? "Silo confirmado. Conferência aprovada."
         : `Divergência: solicitado ${siloSolicitado.nome}, detectado ${siloDetectado.nome}.`;
 
-      const [conferenciaId] = await db("conferencias").insert({
+      const conferencia = {
         silo_solicitado_id: siloSolicitado.id,
         silo_detectado_id: siloDetectado.id,
         status,
         mensagem,
         confianca: simulacao.confianca,
-      });
+      }
+
+      const [conferenciaId] = await conferenciaRepository.inserirConferencias(conferencia);
+
 
       // Impede reutilizar uma simulação já registrada.
       if (this.simulacaoAtual?.id === simulacao.id) {
