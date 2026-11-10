@@ -11,7 +11,7 @@ class ConferenciaRepository {
  }
 
  async inserirConferencias(conferencia) {
-    return await this.db("conferencia").insert({
+    return await this.db("conferencias").insert({
         silo_solicitado_id: conferencia.silo_solicitado_id,
         silo_detectado_id: conferencia.silo_detectado_id,
         status: conferencia.status,

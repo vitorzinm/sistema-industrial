@@ -528,3 +528,8 @@
         flex-direction: column;
     }
 }
+
+.qr-reader { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.qr-reader video { width: 100%; max-width: 480px; aspect-ratio: 4 / 3; object-fit: cover; background: #0d1117; border-radius: 10px; }
+.qr-reader p, .qr-reader small { margin: 0; color: #a4b1c2; font-size: 13px; line-height: 1.6; }
+.conference-page button:disabled { opacity: .5; cursor: not-allowed; }

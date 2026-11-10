@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/simular", controller.simular);
 router.post("/validar", controller.validar);
+router.get("/silos", controller.silos);
 router.get("/historico", controller.historico);
 
 module.exports = router;

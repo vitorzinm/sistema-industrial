@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './historico.css'
 
-const API_URL = 'http://localhost:3000/api/conferencia'
+import { API_URL } from "../config/api";
 
 function formatarSilo(valor) {
     if (typeof valor === 'string' && valor.trim()) return valor.startsWith('SILO-') ? valor : valor

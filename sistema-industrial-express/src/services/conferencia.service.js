@@ -144,6 +144,10 @@ class ConferenciaService {
     }
   }
 
+  async listarSilos() {
+    return conferenciaRepository.listarSilos();
+  }
+
   async listarHistorico() {
     return db("conferencias")
       .leftJoin(

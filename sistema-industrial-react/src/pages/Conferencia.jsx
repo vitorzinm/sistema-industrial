@@ -1,17 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./Conferencia.css";
 
-const API_URL = "http://localhost:3000/api/conferencia";
-
-const silosDisponiveis = Array.from(
-    { length: 10 },
-    (_, i) => `SILO-${String(i + 1).padStart(3, "0")}`,
-);
-
-function numeroDoSilo(silo) {
-    return Number(silo.replace("SILO-", ""));
-}
+import LeitorQr from "../components/LeitorQr";
+import { API_URL } from "../config/api";
 
 function Conferencia() {
     const [origem, setOrigem] = useState("");
@@ -22,6 +14,38 @@ function Conferencia() {
     const [confianca, setConfianca] = useState(null);
     const [carregando, setCarregando] = useState(false);
     const [simulacaoId, setSimulacaoId] = useState(null);
+
+    const [silosDisponiveis, setSilosDisponiveis] = useState([]);
+    const [carregandoSilos, setCarregandoSilos] = useState(true);
+    const [erroSilos, setErroSilos] = useState("");
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetch(`${API_URL}/silos`, { signal: controller.signal })
+            .then(async (resposta) => {
+                const dados = await resposta.json();
+                if (!resposta.ok) throw new Error(dados.mensagem || "Erro ao carregar silos.");
+                return dados;
+            })
+            .then(setSilosDisponiveis)
+            .catch((erro) => {
+                if (erro.name !== "AbortError") setErroSilos("Não foi possível carregar os silos. Verifique o backend e recarregue a página.");
+            })
+            .finally(() => { if (!controller.signal.aborted) setCarregandoSilos(false); });
+        return () => controller.abort();
+    }, []);
+
+    function lerCodigoQr(texto) {
+        const codigo = texto.trim().toUpperCase();
+        const silo = silosDisponiveis.find((item) => item.codigo_qr.trim().toUpperCase() === codigo);
+        if (!silo) return "QR code não corresponde a um silo ativo cadastrado.";
+        setDestino(String(silo.id));
+        setStatus("Aguardando");
+        setMensagem(`QR code lido: ${silo.nome}. Agora simule a posição.`);
+        return null;
+    }
+
+    const nomeDestino = silosDisponiveis.find((silo) => String(silo.id) === destino)?.nome;
 
     async function iniciarConferencia(event) {
         event.preventDefault();
@@ -105,7 +129,7 @@ function Conferencia() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    siloSolicitadoId: numeroDoSilo(destino),
+                    siloSolicitadoId: Number(destino),
                     simulacaoId,
                 }),
             });
@@ -211,15 +235,15 @@ function Conferencia() {
                                             setMensagem("");
                                         }}
                                         disabled={
-                                            operacaoIniciada || carregando
+                                            operacaoIniciada || carregando || carregandoSilos || !destino || status === "Concluída" || carregandoSilos
                                         }
                                     >
                                         <option value="">
                                             Selecione um silo
                                         </option>
                                         {silosDisponiveis.map((silo) => (
-                                            <option key={silo} value={silo}>
-                                                {silo}
+                                            <option key={silo.id} value={silo.id}>
+                                                {silo.nome}
                                             </option>
                                         ))}
                                     </select>
@@ -229,6 +253,8 @@ function Conferencia() {
                                 </label>
                             </div>
 
+                            {erroSilos && <p role="alert">{erroSilos}</p>}
+                            {!carregandoSilos && !erroSilos && silosDisponiveis.length === 0 && <p>Nenhum silo ativo cadastrado.</p>}
                             {mensagem && (
                                 <div
                                     className={`conference-message ${
@@ -253,7 +279,7 @@ function Conferencia() {
                                         className="conference-primary-button"
                                         type="submit"
                                         disabled={
-                                            carregando || status === "Concluída"
+                                            carregando || carregandoSilos || !destino || status === "Concluída"
                                         }
                                     >
                                         {carregando
@@ -322,37 +348,13 @@ function Conferencia() {
                             <div>
                                 <h2>Identificação do silo</h2>
                                 <p>
-                                    Área preparada para a futura leitura de QR
-                                    Code.
+                                    Identifique o destino pela câmera do celular.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="qr-placeholder">
-                            <div className="qr-frame">
-                                <div className="qr-corner top-left" />
-                                <div className="qr-corner top-right" />
-                                <div className="qr-corner bottom-left" />
-                                <div className="qr-center">▦</div>
-                            </div>
-
-                            <h3>Leitor de QR Code</h3>
-                            <p>
-                                A leitura pela câmera será integrada em uma
-                                próxima etapa.
-                            </p>
-                            <button
-                                type="button"
-                                className="conference-secondary-button"
-                                onClick={() =>
-                                    setMensagem(
-                                        "O leitor de câmera ainda não foi integrado. Selecione o silo manualmente.",
-                                    )
-                                }
-                            >
-                                <span>▣</span> Leitor indisponível
-                            </button>
-                        </div>
+                        <LeitorQr onLer={lerCodigoQr}
+                            disabled={operacaoIniciada || carregando || carregandoSilos || silosDisponiveis.length === 0 || status === "Concluída"} />
                     </article>
                 </div>
 
@@ -390,7 +392,7 @@ function Conferencia() {
                                 <div className="cart-location destination">
                                     <span className="cart-location-dot" />
                                     <span>
-                                        {destino || "Destino não definido"}
+                                        {nomeDestino || "Destino não definido"}
                                     </span>
                                 </div>
                             </div>
@@ -414,14 +416,13 @@ function Conferencia() {
 
                         <div className="cart-info-row">
                             <span>Destino solicitado</span>
-                            <strong>{destino || "—"}</strong>
+                            <strong>{nomeDestino || "—"}</strong>
                         </div>
 
                         <div className="cart-note">
                             <span>ⓘ</span>
                             <p>
-                                A posição ainda é simulada pelo backend. Nenhum
-                                sensor ou câmera está conectado.
+                                A posição ainda é simulada pelo backend. A câmera do celular lê apenas o QR code do destino.
                             </p>
                         </div>
                     </article>

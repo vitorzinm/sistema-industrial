@@ -34,6 +34,14 @@ class ConferenciaController {
     }
   }
 
+  async silos(req, res) {
+    try {
+      return res.json(await conferenciaService.listarSilos());
+    } catch (error) {
+      return res.status(500).json({ mensagem: "Erro ao consultar silos." });
+    }
+  }
+
   async historico(req, res) {
     try {
       const registros = await conferenciaService.listarHistorico();
